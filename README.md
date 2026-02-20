@@ -1,6 +1,6 @@
 # Wisconsin Law Enforcement RAG System
 
-A Retrieval-Augmented Generation (RAG) application that enables Wisconsin law enforcement officers to query state statutes, case law, and department policies through a conversational chat interface. Built with FastAPI, ChromaDB, OpenAI, and Next.js.
+A Retrieval-Augmented Generation (RAG) application that enables Wisconsin law enforcement officers to query state statutes, case law, and department policies through a conversational chat interface.
 
 ---
 
@@ -100,7 +100,7 @@ For the full technical architecture, pipeline diagrams, and design rationale, se
 │   ├── utils/
 │   │   ├── abbreviations.py     # 35 law enforcement abbreviation mappings
 │   │   └── legal_terms.py       # 34 colloquial-to-legal term mappings
-│   └── tests/                   # 89+ test cases (see TESTS.md)
+│   └── tests/                   # 174 test cases (see TESTS.md)
 ├── data/
 │   ├── statute/                 # Wisconsin statute PDFs
 │   ├── case_law/                # Case law PDFs
@@ -154,7 +154,7 @@ OPENAI_API_KEY=sk-your-actual-api-key-here
 
 # Optional — defaults shown
 LLM_MODEL=gpt-3.5-turbo
-LLM_TEMPERATURE=0.7
+LLM_TEMPERATURE=0.3
 EMBEDDING_MODEL=text-embedding-3-small
 API_HOST=0.0.0.0
 API_PORT=8000
@@ -334,21 +334,18 @@ Open **http://localhost:3000** in your browser.
 ## Running Tests
 
 ```bash
-# All tests (89+ test cases)
+# All tests (174 test cases)
 pytest backend/tests/ -v
 
-# Quick run — skip LLM-as-a-Judge tests (no API key needed)
-pytest backend/tests/ -v -k "not TestGenerationMetrics"
-
-# Print RAG evaluation summary table
-pytest backend/tests/test_rag_evals.py::test_print_eval_summary -s
+# Quick run — unit tests only (no API key needed)
+pytest backend/tests/ -v -k "not test_rag_evals"
 
 # Individual test files
-pytest backend/tests/test_api.py -v          # 8 API tests
-pytest backend/tests/test_ingestion.py -v    # 28 ingestion tests
+pytest backend/tests/test_api.py -v          # 9 API tests
+pytest backend/tests/test_ingestion.py -v    # 35 ingestion tests
 pytest backend/tests/test_retrieval.py -v    # 16 retrieval tests
 pytest backend/tests/test_cross_ref.py -v    # 16 cross-reference tests
-pytest backend/tests/test_rag_evals.py -v    # 21+ RAG evaluation tests
+pytest backend/tests/test_rag_evals.py -v    # 98 RAG evaluation tests
 ```
 
 See [TESTS.md](TESTS.md) for detailed documentation on metrics, thresholds, and the golden query set.
@@ -388,8 +385,8 @@ Evaluated against a golden query set of 12 representative queries spanning statu
 | Mean Reciprocal Rank             | 1.000    | >= 0.50     |
 | Mean Confidence Score            | 0.791    | >= 0.40     |
 | Source Match Rate                | 12/12    | >= 8/12     |
-| Mean Retrieval Latency           | 371 ms   | < 15 000 ms |
-| Mean End-to-End Latency          | 2 341 ms | < 30 000 ms |
+| Mean Retrieval Latency           | 521 ms   | < 15 000 ms |
+| Mean End-to-End Latency          | 2 559 ms | < 30 000 ms |
 | Faithfulness (LLM-as-Judge)      | 1.000    | >= 0.70     |
 | Safety Compliance (LLM-as-Judge) | 1.000    | >= 0.80     |
 

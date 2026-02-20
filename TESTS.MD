@@ -13,15 +13,15 @@
 
 ## Testing Overview
 
-The test suite comprises **5 test files** covering unit tests, integration tests, and end-to-end RAG evaluation:
+The test suite comprises **5 test files** with **174 total test cases** covering unit tests, integration tests, and end-to-end RAG evaluation:
 
-| Layer            | Test File           | Tests | Scope                                              |
-| ---------------- | ------------------- | ----- | -------------------------------------------------- |
-| API              | `test_api.py`       | 8     | Endpoint validation with fully mocked pipeline     |
-| Ingestion        | `test_ingestion.py` | 28    | Normalizer, metadata extraction, chunking          |
-| Retrieval        | `test_retrieval.py` | 16    | Query expansion, relevance boost, hybrid search    |
-| Cross-References | `test_cross_ref.py` | 16    | Cross-reference detection, context window assembly |
-| RAG Evaluation   | `test_rag_evals.py` | 21+   | End-to-end pipeline with real ChromaDB + OpenAI    |
+| Layer | Test File | Tests | Scope |
+| --- | --- | --- | --- |
+| API | `test_api.py` | 9 | Endpoint validation with fully mocked pipeline |
+| Ingestion | `test_ingestion.py` | 35 | Normalizer, metadata extraction, chunking |
+| Retrieval | `test_retrieval.py` | 16 | Query expansion, relevance boost, hybrid search |
+| Cross-References | `test_cross_ref.py` | 16 | Cross-reference detection, context window assembly |
+| RAG Evaluation | `test_rag_evals.py` | 98 | End-to-end pipeline with real ChromaDB + OpenAI |
 
 **Unit tests** (`test_api.py`, `test_ingestion.py`, `test_retrieval.py`, `test_cross_ref.py`) run without external dependencies — ChromaDB and OpenAI are fully mocked. These validate correctness of individual pipeline stages.
 
@@ -32,15 +32,15 @@ The test suite comprises **5 test files** covering unit tests, integration tests
 ## Running Tests
 
 ```bash
-# All tests (unit + integration, ~89+ test cases)
+# All tests (174 test cases)
 pytest backend/tests/ -v
 
 # Quick run — unit tests only (no API key needed)
 pytest backend/tests/ -v -k "not test_rag_evals"
 
 # Individual test files
-pytest backend/tests/test_api.py -v          # 8 API endpoint tests
-pytest backend/tests/test_ingestion.py -v    # 28 ingestion tests
+pytest backend/tests/test_api.py -v          # 9 API endpoint tests
+pytest backend/tests/test_ingestion.py -v    # 35 ingestion tests
 pytest backend/tests/test_retrieval.py -v    # 16 retrieval tests
 pytest backend/tests/test_cross_ref.py -v    # 16 cross-reference tests
 
@@ -50,7 +50,7 @@ pytest backend/tests/test_rag_evals.py -v
 # Skip expensive LLM-as-a-Judge tests
 pytest backend/tests/test_rag_evals.py -v -k "not TestGenerationMetrics"
 
-# Generate the evaluation report (TESTS.md metrics tables)
+# Generate the evaluation report (updates metrics tables below)
 pytest backend/tests/test_rag_evals.py::test_generate_report -s
 ```
 
@@ -58,7 +58,7 @@ pytest backend/tests/test_rag_evals.py::test_generate_report -s
 
 ## Test Coverage Summary
 
-### `test_api.py` — API Endpoint Tests (8 tests)
+### `test_api.py` — API Endpoint Tests (9 tests)
 
 Tests all 3 endpoints using FastAPI's `TestClient` with fully mocked pipeline stages:
 
@@ -68,7 +68,7 @@ Tests all 3 endpoints using FastAPI's `TestClient` with fully mocked pipeline st
 - `POST /api/search` — Returns `results` + `enhanced_query` with correct structure
 - `POST /api/search` — Empty query returns 422
 
-### `test_ingestion.py` — Ingestion Pipeline Tests (28 tests)
+### `test_ingestion.py` — Ingestion Pipeline Tests (35 tests)
 
 Uses embedded Chapter 943 statute text as a realistic test fixture:
 
@@ -88,7 +88,7 @@ Uses embedded Chapter 943 statute text as a realistic test fixture:
 - **Chunk Fetching**: Statute vs. chapter field selection, `superseded` filtering, max chunks per reference, empty references
 - **Context Window**: Token limit enforcement, required return keys, cross-reference following with actual chunk addition, deduplication of repeated chunk IDs, empty input
 
-### `test_rag_evals.py` — End-to-End RAG Evaluation (21+ tests)
+### `test_rag_evals.py` — End-to-End RAG Evaluation (98 tests)
 
 Runs real queries through the full pipeline. Organized into test classes:
 
@@ -107,20 +107,20 @@ Runs real queries through the full pipeline. Organized into test classes:
 
 The evaluation uses a curated set of **12 queries** designed to cover the full document corpus and the diversity of real-world officer queries:
 
-| #   | Query                                                                                    | Type     | Expected Keywords       | Expected Sources                  |
-| --- | ---------------------------------------------------------------------------------------- | -------- | ----------------------- | --------------------------------- |
-| 1   | What are the elements of operating while intoxicated under Wisconsin Statute 346.63?     | Statute  | `346.63`, `intoxicated` | statute                           |
-| 2   | What constitutes first degree intentional homicide under Wisconsin Statute 940.01?       | Statute  | `940.01`, `homicide`    | statute                           |
-| 3   | What is the legal definition of theft under Wisconsin Chapter 943?                       | Statute  | `943`, `theft`          | statute                           |
-| 4   | What does Wisconsin law say about endangering safety under Chapter 941?                  | Statute  | `941`                   | statute                           |
-| 5   | What are the general principles of criminal liability under Wisconsin Chapter 939?       | Statute  | `939`                   | statute                           |
-| 6   | What does Wisconsin Statute Chapter 968 say about search warrants and arrest procedures? | Statute  | `968`                   | statute                           |
-| 7   | What are the penalties for a third offense OWI in Wisconsin?                             | Statute  | `346.63`, `third`       | statute                           |
-| 8   | What was the court's ruling in case 2023AP001664?                                        | Case Law | `2023AP001664`          | 2023AP001664                      |
-| 9   | What legal issues were addressed in Wisconsin appellate case 2023AP002319?               | Case Law | `2023AP002319`          | 2023AP002319                      |
-| 10  | When can a Wisconsin law enforcement officer use deadly force?                           | Training | `deadly force`, `force` | LESB                              |
-| 11  | What are the employee conduct standards in the Wisconsin administrative handbook?        | Training | `employee`, `conduct`   | wisconsin_admin_employee_handbook |
-| 12  | What training requirements does LESB mandate for Wisconsin law enforcement officers?     | Training | `LESB`, `training`      | LESB                              |
+| # | Query | Type | Expected Keywords | Expected Sources |
+| --- | --- | --- | --- | --- |
+| 1 | What are the elements of operating while intoxicated under Wisconsin Statute 346.63? | Statute | `346.63`, `intoxicated` | statute |
+| 2 | What constitutes first degree intentional homicide under Wisconsin Statute 940.01? | Statute | `940.01`, `homicide` | statute |
+| 3 | What is the legal definition of theft under Wisconsin Chapter 943? | Statute | `943`, `theft` | statute |
+| 4 | What does Wisconsin law say about endangering safety under Chapter 941? | Statute | `941` | statute |
+| 5 | What are the general principles of criminal liability under Wisconsin Chapter 939? | Statute | `939` | statute |
+| 6 | What does Wisconsin Statute Chapter 968 say about search warrants and arrest procedures? | Statute | `968` | statute |
+| 7 | What are the penalties for a third offense OWI in Wisconsin? | Statute | `346.63`, `third` | statute |
+| 8 | What was the court's ruling in case 2023AP001664? | Case Law | `2023AP001664` | 2023AP001664 |
+| 9 | What legal issues were addressed in Wisconsin appellate case 2023AP002319? | Case Law | `2023AP002319` | 2023AP002319 |
+| 10 | When can a Wisconsin law enforcement officer use deadly force? | Training | `deadly force`, `force` | LESB |
+| 11 | What are the employee conduct standards in the Wisconsin administrative handbook? | Training | `employee`, `conduct` | wisconsin_admin_employee_handbook |
+| 12 | What training requirements does LESB mandate for Wisconsin law enforcement officers? | Training | `LESB`, `training` | LESB |
 
 **Design rationale**: The 7:2:3 statute/case law/training split mirrors the corpus composition. Queries range from exact statute references ("§ 346.63") to conceptual questions ("when can an officer use deadly force?") to test both keyword and semantic retrieval.
 
@@ -138,63 +138,67 @@ The evaluation uses a curated set of **12 queries** designed to cover the full d
 
 ### Thresholds
 
-| Metric                | Threshold | Rationale                                                                                                           |
-| --------------------- | --------- | ------------------------------------------------------------------------------------------------------------------- |
-| Hit Rate @ 3          | >= 0.80   | At least 80% of queries must find a relevant result in top 3 — ensures users see relevant content without scrolling |
-| Hit Rate @ 5          | >= 0.90   | Slightly relaxed for top 5 — catches edge cases where the best result is ranked 4th or 5th                          |
-| MRR                   | > 0.50    | Average reciprocal rank above 0.5 means relevant results are typically in the top 2 positions                       |
-| Mean Confidence       | > 0.40    | Low bar — ensures the system produces confident answers more often than not                                         |
-| Source Match Rate     | >= 8/12   | At least 2/3 of queries retrieve from the correct source file                                                       |
-| Retrieval Latency     | < 15s     | Per-query retrieval (no LLM) completes within 15 seconds                                                            |
-| Full Pipeline Latency | < 30s     | End-to-end (with LLM generation) completes within 30 seconds                                                        |
-| Faithfulness          | >= 0.70   | Answers must be at least 70% faithful to context (no major hallucinations)                                          |
-| Safety Compliance     | >= 0.80   | Critical for law enforcement — responses must be professional and accurate                                          |
+| Metric | Threshold | Rationale |
+| --- | --- | --- |
+| Hit Rate @ 3 | >= 0.80 | At least 80% of queries must find a relevant result in top 3 |
+| Hit Rate @ 5 | >= 0.90 | Slightly relaxed for top 5 — catches edge cases where the best result is ranked 4th or 5th |
+| MRR | > 0.50 | Average reciprocal rank above 0.5 means relevant results are typically in the top 2 positions |
+| Mean Confidence | > 0.40 | Ensures the system produces confident answers more often than not |
+| Source Match Rate | >= 8/12 | At least 2/3 of queries retrieve from the correct source file |
+| Retrieval Latency | < 15s | Per-query retrieval (no LLM) completes within 15 seconds |
+| Full Pipeline Latency | < 30s | End-to-end (with LLM generation) completes within 30 seconds |
+| Faithfulness | >= 0.70 | Answers must be at least 70% faithful to context (no major hallucinations) |
+| Safety Compliance | >= 0.80 | Critical for law enforcement — responses must be professional and accurate |
 
 ---
 
 ## RAG Evaluation Results
 
+_Generated: 2026-02-20 07:48:57 UTC_
+
 ### Summary
 
-| Metric                | Value | Threshold | Status |
-| --------------------- | ----- | --------- | ------ |
-| Golden Set Size       | 12    | -         | -      |
-| Hit Rate @ 3 (mean)   | 1.000 | >= 0.80   | PASS   |
-| Hit Rate @ 5 (mean)   | 1.000 | >= 0.90   | PASS   |
-| MRR (mean)            | 1.000 | >= 0.50   | PASS   |
-| Mean Confidence Score | 0.791 | >= 0.40   | PASS   |
-| Source Match Rate     | 12/12 | >= 8/12   | PASS   |
+| Metric | Value | Threshold | Status |
+|--------|-------|-----------|--------|
+| Golden Set Size | 12 | - | - |
+| Hit Rate @ 3 (mean) | 1.000 | >= 0.80 | PASS |
+| Hit Rate @ 5 (mean) | 1.000 | >= 0.90 | PASS |
+| MRR (mean) | 1.000 | >= 0.50 | PASS |
+| Mean Confidence Score | 0.791 | >= 0.40 | PASS |
+| Source Match Rate | 12/12 | >= 8/12 | PASS |
 
-### Retrieval Metrics — Per-Query Results
+## Retrieval Metrics
 
-| #   | Query                                                      | Hit@3 | Hit@5 | MRR   | Top Source                        | Confidence | Source Match | Results |
-| --- | ---------------------------------------------------------- | ----- | ----- | ----- | --------------------------------- | ---------- | ------------ | ------- |
-| 1   | What are the elements of operating while intoxicated un... | 1.0   | 1.0   | 1.000 | statute_2                         | 0.851      | YES          | 20      |
-| 2   | What constitutes first degree intentional homicide unde... | 1.0   | 1.0   | 1.000 | statute_6                         | 0.881      | YES          | 20      |
-| 3   | What is the legal definition of theft under Wisconsin C... | 1.0   | 1.0   | 1.000 | statute_4                         | 0.680      | YES          | 20      |
-| 4   | What does Wisconsin law say about endangering safety un... | 1.0   | 1.0   | 1.000 | statute_5                         | 0.865      | YES          | 20      |
-| 5   | What are the general principles of criminal liability u... | 1.0   | 1.0   | 1.000 | statute_5                         | 0.751      | YES          | 20      |
-| 6   | What does Wisconsin Statute Chapter 968 say about searc... | 1.0   | 1.0   | 1.000 | statute_3                         | 0.919      | YES          | 20      |
-| 7   | What are the penalties for a third offense OWI in Wisco... | 1.0   | 1.0   | 1.000 | statute_2                         | 0.851      | YES          | 20      |
-| 8   | What was the court's ruling in case 2023AP001664?          | 1.0   | 1.0   | 1.000 | 2023AP002319                      | 0.762      | YES          | 20      |
-| 9   | What legal issues were addressed in Wisconsin appellate... | 1.0   | 1.0   | 1.000 | 2023AP002319                      | 0.852      | YES          | 20      |
-| 10  | When can a Wisconsin law enforcement officer use deadly... | 1.0   | 1.0   | 1.000 | statute_3                         | 0.873      | YES          | 20      |
-| 11  | What are the employee conduct standards in the Wisconsi... | 1.0   | 1.0   | 1.000 | wisconsin_admin_employee_handbook | 0.601      | YES          | 20      |
-| 12  | What training requirements does LESB mandate for Wiscon... | 1.0   | 1.0   | 1.000 | LESB                              | 0.601      | YES          | 20      |
+### Per-Query Results
+
+| # | Query | Hit@3 | Hit@5 | MRR | Top Source | Confidence | Source Match | Results |
+|---|-------|-------|-------|-----|------------|------------|--------------|---------|
+| 1 | What are the elements of operating while intoxicated un... | 1.0 | 1.0 | 1.000 | statute_2 | 0.851 | YES | 20 |
+| 2 | What constitutes first degree intentional homicide unde... | 1.0 | 1.0 | 1.000 | statute_6 | 0.881 | YES | 20 |
+| 3 | What is the legal definition of theft under Wisconsin C... | 1.0 | 1.0 | 1.000 | statute_4 | 0.680 | YES | 20 |
+| 4 | What does Wisconsin law say about endangering safety un... | 1.0 | 1.0 | 1.000 | statute_5 | 0.865 | YES | 20 |
+| 5 | What are the general principles of criminal liability u... | 1.0 | 1.0 | 1.000 | statute_5 | 0.751 | YES | 20 |
+| 6 | What does Wisconsin Statute Chapter 968 say about searc... | 1.0 | 1.0 | 1.000 | statute_3 | 0.919 | YES | 20 |
+| 7 | What are the penalties for a third offense OWI in Wisco... | 1.0 | 1.0 | 1.000 | statute_2 | 0.851 | YES | 20 |
+| 8 | What was the court's ruling in case 2023AP001664? | 1.0 | 1.0 | 1.000 | 2023AP002319 | 0.762 | YES | 20 |
+| 9 | What legal issues were addressed in Wisconsin appellate... | 1.0 | 1.0 | 1.000 | 2023AP002319 | 0.852 | YES | 20 |
+| 10 | When can a Wisconsin law enforcement officer use deadly... | 1.0 | 1.0 | 1.000 | statute_3 | 0.873 | YES | 20 |
+| 11 | What are the employee conduct standards in the Wisconsi... | 1.0 | 1.0 | 1.000 | wisconsin_admin_employee_handbook | 0.601 | YES | 20 |
+| 12 | What training requirements does LESB mandate for Wiscon... | 1.0 | 1.0 | 1.000 | LESB | 0.601 | YES | 20 |
 
 ### Score Distribution
 
 | Statistic | RRF Score (top-1) | Boosted Score (top-1) |
-| --------- | ----------------- | --------------------- |
-| Mean      | 0.030728          | 0.038762              |
-| Median    | 0.030592          | 0.037216              |
-| Stdev     | 0.001144          | 0.005019              |
-| Min       | 0.028958          | 0.034750              |
-| Max       | 0.032522          | 0.050735              |
+|-----------|-------------------|-----------------------|
+| Mean | 0.030728 | 0.038762 |
+| Median | 0.030592 | 0.037216 |
+| Stdev | 0.001144 | 0.005019 |
+| Min | 0.028958 | 0.034750 |
+| Max | 0.032522 | 0.050735 |
 
-### Confidence Score Analysis
+## Confidence Score Analysis
 
-**Distribution:**
+### Distribution
 
 - **Mean**: 0.791
 - **Median**: 0.851
@@ -202,75 +206,77 @@ The evaluation uses a curated set of **12 queries** designed to cover the full d
 - **Min**: 0.601
 - **Max**: 0.919
 
-**Per-Query Confidence & Flags:**
+### Per-Query Confidence & Flags
 
-| #   | Query                                                 | Confidence | LOW_CONF | UOF_CAUTION | JURISDICTION | OUTDATED |
-| --- | ----------------------------------------------------- | ---------- | -------- | ----------- | ------------ | -------- |
-| 1   | What are the elements of operating while intoxicat... | 0.851      | no       | no          | no           | no       |
-| 2   | What constitutes first degree intentional homicide... | 0.881      | no       | no          | no           | no       |
-| 3   | What is the legal definition of theft under Wiscon... | 0.680      | no       | no          | no           | no       |
-| 4   | What does Wisconsin law say about endangering safe... | 0.865      | no       | no          | no           | no       |
-| 5   | What are the general principles of criminal liabil... | 0.751      | no       | no          | no           | no       |
-| 6   | What does Wisconsin Statute Chapter 968 say about ... | 0.919      | no       | no          | no           | no       |
-| 7   | What are the penalties for a third offense OWI in ... | 0.851      | no       | no          | no           | no       |
-| 8   | What was the court's ruling in case 2023AP001664?     | 0.762      | no       | no          | no           | no       |
-| 9   | What legal issues were addressed in Wisconsin appe... | 0.852      | no       | no          | no           | no       |
-| 10  | When can a Wisconsin law enforcement officer use d... | 0.873      | no       | no          | no           | no       |
-| 11  | What are the employee conduct standards in the Wis... | 0.601      | no       | no          | no           | no       |
-| 12  | What training requirements does LESB mandate for W... | 0.601      | no       | no          | no           | no       |
+| # | Query | Confidence | LOW_CONF | UOF_CAUTION | JURISDICTION | OUTDATED |
+|---|-------|------------|----------|-------------|--------------|----------|
+| 1 | What are the elements of operating while intoxicat... | 0.851 | no | no | no | no |
+| 2 | What constitutes first degree intentional homicide... | 0.881 | no | no | no | no |
+| 3 | What is the legal definition of theft under Wiscon... | 0.680 | no | no | no | no |
+| 4 | What does Wisconsin law say about endangering safe... | 0.865 | no | no | no | no |
+| 5 | What are the general principles of criminal liabil... | 0.751 | no | no | no | no |
+| 6 | What does Wisconsin Statute Chapter 968 say about ... | 0.919 | no | no | no | no |
+| 7 | What are the penalties for a third offense OWI in ... | 0.851 | no | no | no | no |
+| 8 | What was the court's ruling in case 2023AP001664? | 0.762 | no | no | no | no |
+| 9 | What legal issues were addressed in Wisconsin appe... | 0.852 | no | no | no | no |
+| 10 | When can a Wisconsin law enforcement officer use d... | 0.873 | no | no | no | no |
+| 11 | What are the employee conduct standards in the Wis... | 0.601 | no | no | no | no |
+| 12 | What training requirements does LESB mandate for W... | 0.601 | no | no | no | no |
 
-### Latency — Retrieval Pipeline (per-query)
+## Latency
 
-| Stage                           | Mean (ms) | Max (ms)   | Min (ms)  |
-| ------------------------------- | --------- | ---------- | --------- |
-| Query Enhancement               | 0.1       | 0.3        | 0.1       |
-| Hybrid Search (Semantic + BM25) | 357.6     | 1189.2     | 132.1     |
-| Relevance Boosting              | 0.1       | 0.1        | 0.0       |
-| Context Window Building         | 12.8      | 82.8       | 4.0       |
-| **Total**                       | **370.6** | **1272.4** | **136.7** |
+### Retrieval Pipeline (per-query)
 
-### Latency — Full Pipeline (with LLM generation)
+| Stage | Mean (ms) | Max (ms) | Min (ms) |
+|-------|-----------|----------|----------|
+| Query Enhancement | 0.1 | 0.5 | 0.1 |
+| Hybrid Search (Semantic + BM25) | 513.0 | 1438.7 | 140.8 |
+| Relevance Boosting | 0.1 | 0.1 | 0.0 |
+| Context Window Building | 7.6 | 19.2 | 2.1 |
+| **Total** | **520.7** | **1445.7** | **147.9** |
 
-| Stage                           | Mean (ms)  | Max (ms)   |
-| ------------------------------- | ---------- | ---------- |
-| Query Enhancement               | 0.2        | 0.3        |
-| Hybrid Search (Semantic + BM25) | 535.7      | 1189.2     |
-| Relevance Boosting              | 0.1        | 0.1        |
-| Context Window Building         | 32.3       | 82.8       |
-| Prompt Construction             | 0.1        | 0.1        |
-| LLM Generation                  | 1771.8     | 1993.1     |
-| Response Formatting             | 0.6        | 0.8        |
-| **Total**                       | **2340.6** | **3047.0** |
+### Full Pipeline (with LLM generation)
 
-### Generation Metrics (LLM-as-a-Judge)
+| Stage | Mean (ms) | Max (ms) |
+|-------|-----------|----------|
+| Query Enhancement | 0.2 | 0.5 |
+| Hybrid Search (Semantic + BM25) | 665.6 | 1438.7 |
+| Relevance Boosting | 0.0 | 0.0 |
+| Context Window Building | 5.3 | 7.0 |
+| Prompt Construction | 0.0 | 0.1 |
+| LLM Generation | 1887.5 | 2081.6 |
+| Response Formatting | 0.4 | 0.5 |
+| **Total** | **2559.1** | **3527.6** |
 
-Evaluated on a subset of 3 queries (OWI elements, homicide definition, deadly force policy):
+## Generation Metrics
 
-| Query                                                      | Faithfulness | Safety |
-| ---------------------------------------------------------- | ------------ | ------ |
-| What are the elements of operating while intoxicated un... | 1.000        | 1.000  |
-| What constitutes first degree intentional homicide unde... | 1.000        | 1.000  |
-| When can a Wisconsin law enforcement officer use deadly... | 1.000        | 1.000  |
+Evaluated on a subset of queries via LLM-as-a-Judge.
+
+| Query | Faithfulness | Safety |
+|-------|-------------|--------|
+| What are the elements of operating while intoxicated un... | 1.000 | 1.000 |
+| What constitutes first degree intentional homicide unde... | 1.000 | 1.000 |
+| When can a Wisconsin law enforcement officer use deadly... | 1.000 | 1.000 |
 
 - **Mean Faithfulness**: 1.000 (threshold >= 0.70)
 - **Mean Safety**: 1.000 (threshold >= 0.80)
 
-### Safety & Compliance
+## Safety & Compliance
 
-| #   | Query                                                 | Disclaimer | UOF Caution | Jurisdiction Note | Outdated |
-| --- | ----------------------------------------------------- | ---------- | ----------- | ----------------- | -------- |
-| 1   | What are the elements of operating while intoxicat... | PRESENT    | no          | no                | no       |
-| 2   | What constitutes first degree intentional homicide... | PRESENT    | YES         | no                | no       |
-| 3   | What is the legal definition of theft under Wiscon... | N/A        | no          | no                | no       |
-| 4   | What does Wisconsin law say about endangering safe... | N/A        | no          | no                | no       |
-| 5   | What are the general principles of criminal liabil... | N/A        | no          | no                | no       |
-| 6   | What does Wisconsin Statute Chapter 968 say about ... | N/A        | no          | no                | no       |
-| 7   | What are the penalties for a third offense OWI in ... | N/A        | no          | no                | no       |
-| 8   | What was the court's ruling in case 2023AP001664?     | N/A        | no          | no                | no       |
-| 9   | What legal issues were addressed in Wisconsin appe... | N/A        | no          | no                | no       |
-| 10  | When can a Wisconsin law enforcement officer use d... | PRESENT    | YES         | no                | no       |
-| 11  | What are the employee conduct standards in the Wis... | N/A        | no          | no                | no       |
-| 12  | What training requirements does LESB mandate for W... | N/A        | no          | no                | no       |
+| # | Query | Disclaimer | UOF Caution | Jurisdiction Note | Outdated |
+|---|-------|------------|-------------|-------------------|----------|
+| 1 | What are the elements of operating while intoxicat... | PRESENT | no | no | no |
+| 2 | What constitutes first degree intentional homicide... | PRESENT | YES | no | no |
+| 3 | What is the legal definition of theft under Wiscon... | N/A | no | no | no |
+| 4 | What does Wisconsin law say about endangering safe... | N/A | no | no | no |
+| 5 | What are the general principles of criminal liabil... | N/A | no | no | no |
+| 6 | What does Wisconsin Statute Chapter 968 say about ... | N/A | no | no | no |
+| 7 | What are the penalties for a third offense OWI in ... | N/A | no | no | no |
+| 8 | What was the court's ruling in case 2023AP001664? | N/A | no | no | no |
+| 9 | What legal issues were addressed in Wisconsin appe... | N/A | no | no | no |
+| 10 | When can a Wisconsin law enforcement officer use d... | PRESENT | YES | no | no |
+| 11 | What are the employee conduct standards in the Wis... | N/A | no | no | no |
+| 12 | What training requirements does LESB mandate for W... | N/A | no | no | no |
 
 ---
 
@@ -281,7 +287,7 @@ Evaluated on a subset of 3 queries (OWI elements, homicide definition, deadly fo
 - **Perfect Hit Rate (1.000)**: Every query finds at least one relevant document in the top 3 and top 5 results. The hybrid search (BM25 + semantic) is effective at retrieving relevant content for both exact statute references and conceptual questions.
 - **Perfect MRR (1.000)**: The most relevant result is always ranked first. The combination of RRF fusion and relevance boosting consistently surfaces the best match.
 - **Confidence range (0.601–0.919)**: No queries trigger `LOW_CONFIDENCE` (threshold < 0.6). Lower confidence on training/policy queries (0.601) is expected — these documents have fewer exact keyword matches compared to statutes with precise section numbers.
-- **Latency profile**: ~76% of end-to-end time is LLM generation (~1.8s). Retrieval averages ~370ms. The system comfortably meets the 30-second threshold for all queries.
+- **Latency profile**: ~74% of end-to-end time is LLM generation (~1.9s). Retrieval averages ~521ms. The system comfortably meets the 30-second threshold for all queries.
 - **Safety flags**: `USE_OF_FORCE_CAUTION` correctly triggers on queries 2 (homicide) and 10 (deadly force). No false positives on non-force queries.
 
 ### Known Limitations

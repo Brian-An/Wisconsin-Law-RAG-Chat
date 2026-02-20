@@ -495,17 +495,17 @@ Measured across 12 golden queries (mean values):
 
 ```
 Query Enhancement     ████ 0.2 ms        (regex matching, dictionary lookups)
-Hybrid Search         ████████████████████████████████████ 536 ms  (OpenAI embedding + ChromaDB + BM25)
-Relevance Boosting    ██ 0.1 ms          (score multiplication, re-sort)
-Context Assembly      ████ 32 ms         (token counting, cross-ref fetching)
-Prompt Construction   ██ 0.1 ms          (string formatting)
-LLM Generation        ████████████████████████████████████████████████ 1772 ms  (OpenAI API call)
-Response Formatting   ██ 0.6 ms          (confidence scoring, safety checks)
+Hybrid Search         ████████████████████████████████████ 666 ms  (OpenAI embedding + ChromaDB + BM25)
+Relevance Boosting    ██ 0.0 ms          (score multiplication, re-sort)
+Context Assembly      ████ 5 ms          (token counting, cross-ref fetching)
+Prompt Construction   ██ 0.0 ms          (string formatting)
+LLM Generation        ████████████████████████████████████████████████ 1888 ms  (OpenAI API call)
+Response Formatting   ██ 0.4 ms          (confidence scoring, safety checks)
 ────────────────────────────────────────────────────────────────────
-Total                                     ~2341 ms
+Total                                     ~2559 ms
 ```
 
-**Where time is spent**: ~76% of end-to-end latency is the LLM generation call. ~23% is hybrid search (dominated by the OpenAI embedding API call for the query vector). All other stages combined account for <1%.
+**Where time is spent**: ~74% of end-to-end latency is the LLM generation call. ~26% is hybrid search (dominated by the OpenAI embedding API call for the query vector). All other stages combined account for <1%.
 
 ### Optimization Strategies
 
