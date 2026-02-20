@@ -137,7 +137,7 @@ For the full technical architecture, pipeline diagrams, and design rationale, se
 
 ```bash
 git clone https://github.com/Brian-An/Wisconsin-Law-RAG-Chat.git
-cd code-four-takehome
+cd Wisconsin-Law-RAG-Chat
 ```
 
 ### 2. Configure Environment Variables
