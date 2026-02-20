@@ -2,6 +2,8 @@
 
 A Retrieval-Augmented Generation (RAG) application that enables Wisconsin law enforcement officers to query state statutes, case law, and department policies through a conversational chat interface.
 
+Video Demo: [Here](https://youtu.be/1F9aKxEJcyU)
+
 ---
 
 ## Table of Contents
